@@ -15,6 +15,7 @@ Laravel Admin Bootstrap is an Admin Panel Web Application built off the back of 
 - Configuration Settings
 - Theme Layout
 - File Manager
+- Documentation
 
 ## Contributing Guidelines
 
