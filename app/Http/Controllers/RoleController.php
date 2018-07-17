@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Response;
 
 class RoleController extends Controller
 {
@@ -14,14 +15,9 @@ class RoleController extends Controller
      */
     public function index()
     {
-        // $roles = Role::all();
-        $roles_in_db = Role::all()->pluck('name');
+        $roles = Role::all();
 
-        // dd($roles);
-        dd($roles_in_db);
-
-        // return $roles;
-        // return $roles_in_db;
+        return Response::json($roles);
     }
 
     /**
