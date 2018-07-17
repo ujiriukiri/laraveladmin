@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -14,9 +18,15 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::withTrashed()->get();
+        $scope = Input::get("scope");
+
+        if($scope == 'all'){
+            $users = User::withTrashed()->get();
+        } else{
+            $users = User::all();
+        }       
         
-        dd($users);
+        return Response::json($users);
     }
 
     /**
@@ -37,7 +47,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validation::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'email' => 'required|unique:users',
             'username' => 'required|unique:users',
             'password' => 'required|min:8',
@@ -46,6 +56,16 @@ class UserController extends Controller
         if($validator->fails()){
             dd($validator->errors);
         }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'username' => $request->username,
+            'uuid' => Str::uuid(),
+            'password' => bcrypt('password'),
+        ]);
+
+        return $user;
     }
 
     /**
@@ -58,7 +78,8 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        dd($user);
+        // dd($user);
+        return Response::json($user);
     }
 
     /**
@@ -81,7 +102,26 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'email' => 'required',
+            'username' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return Response::json($validator->errors()->all());
+        }
+
+        $user = User::findOrFail($id);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->username = $request->username;
+        $user->uuid = Str::uuid();
+        $user->password = bcrypt('password');
+
+        $user->save();
+
+        return Response::json($user);
     }
 
     /**
@@ -92,6 +132,8 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        User::destroy($id);
+
+        return Response::json('Deleted');
     }
 }
